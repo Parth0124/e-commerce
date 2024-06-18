@@ -3,7 +3,8 @@ html(lang="en")
     head
         meta(charset="UTF-8")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        title Page not found
+        title #{pageTitle}
+        link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Open+Sans:400,700")
         link(rel="stylesheet", href="/css/main.css")
         block styles
     body 
@@ -11,8 +12,7 @@ html(lang="en")
             nav.main-header__nav 
                 ul.main-header__item-list 
                     li.main-header__item 
-                        a(href="/") Shop
+                        a(href="/", class=(path === '/' ? 'active' : '')) Shop
                     li.main-header__item 
-                        a(href="/admin/add-product", class="active") Add Product
+                        a(href="/admin/add-product", class=(path === '/admin/add-product' ? 'active' : '')) Add Product
         block content
-           
