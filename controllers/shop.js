@@ -33,9 +33,24 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  res.render('shop/cart', {
-    path: '/cart',
-    pageTitle: 'Your Cart'
+  Cart.getCart(cart => {
+    if (!cart) {
+      cart = { products: [], totalPrice: 0 }; // Initialize with default values if cart is null
+    }
+    Product.fetchAll(products => {
+      const cartProducts = [];
+      for (let product of products) {
+        const cartProductData = cart.products.find(prod => prod.id === product.id);
+        if (cartProductData) {
+          cartProducts.push({ productData: product, qty: cartProductData.qty });
+        }
+      }
+      res.render('shop/cart', {
+        path: '/cart',
+        pageTitle: 'Your Cart',
+        products: cartProducts
+      });
+    });
   });
 };
 
