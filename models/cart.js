@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { postDeleteProduct } = require('../controllers/admin');
 
 const p = path.join(
   path.dirname(process.mainModule.filename),
@@ -35,12 +36,33 @@ module.exports = class Cart {
         updatedProduct = { id: id, qty: 1 };
         cart.products = [...cart.products, updatedProduct];
       }
-      cart.totalPrice = cart.totalPrice + +productPrice;
+      cart.totalPrice = cart.totalPrice + + productPrice;
       fs.writeFile(p, JSON.stringify(cart), err => {
         if (err) {
           console.error('Error writing to file: ', err);
         }
       });
     });
+  }
+
+  static deleteProduct(id, productPrice)
+  {
+      fs.readFile(p, (err,data) => {
+        if(err)
+        {
+          return;
+        }
+        const updatedCart = {...JSON.parse(data)};
+        const product = updatedCart.products.find(prod => prod.id === id);
+        const productQty = product.qty;
+        updatedCart.products = updatedCart.products.filter(prod => prod.id !== id);
+        updatedCart.totalPrice = updatedCart.totalPrice - productPrice * productQty;
+
+        fs.writeFile(p, JSON.stringify(updatedCart), err => {
+          if (err) {
+            console.error('Error writing to file: ', err);
+          }
+        });
+      });
   }
 };
