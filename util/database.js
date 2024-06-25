@@ -13,9 +13,9 @@ let _db;
 
 const mongoConnect = (callback) => {
   MongoClient.connect(
-    "mongodb+srv://abhangparth:Parth0124@cluster0.c2oyrqb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://abhangparth:Parth0124@cluster0.c2oyrqb.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0"
   )
-    .then((result) => {
+    .then((client) => {
       console.log("Successfully connected!");
       _db = client.db()
       callback();

@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 
-// const adminRoutes = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 // const shopRoutes = require('./routes/shop');
 const errorController = require('./controllers/error');
 // const sequelize = require('./util/database');
@@ -14,7 +14,7 @@ const errorController = require('./controllers/error');
 // const OrderItem = require('./models/order-item');
 // const { constants } = require('buffer');
 
-const mongoConnect = require('./util/database');
+const mongoConnect = require('./util/database').mongoConnect;
 
 const app = express();
 
@@ -33,6 +33,7 @@ app.use((req,res,next) => {
     // .catch(err => {
     //     console.log(err);
     // })
+    next();
 });
 
 app.use('/admin', adminRoutes);
