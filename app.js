@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const adminRoutes = require('./routes/admin');
-// const shopRoutes = require('./routes/shop');
+const shopRoutes = require('./routes/shop');
 const errorController = require('./controllers/error');
 // const sequelize = require('./util/database');
 // const Product = require('./models/product');
@@ -37,40 +37,9 @@ app.use((req,res,next) => {
 });
 
 app.use('/admin', adminRoutes);
-// app.use(shopRoutes);
+app.use(shopRoutes);
 
 app.use(errorController.get404);
-
-// Product.belongsTo(User, {constants:true, onDelete: 'CASCADE'});
-// User.hasMany(Product);
-
-// User.hasOne(Cart);
-// Cart.belongsTo(User);
-
-// Cart.belongsToMany(Product, {through: CartItem});
-// Product.belongsToMany(Cart, {through: CartItem});
-
-// Order.belongsTo(User);
-// User.hasMany(Order);
-// Order.belongsToMany(Product, {through: OrderItem})
-
-// sequelize.sync()
-// .then(result => {
-//     return User.findByPk(1)
-// })
-// .then(user => {
-//     if(!user)
-//     {
-//         return User.create({name: "Max", email: 'test@xyz.com'});
-//     }
-//     return user;
-// })
-// .then(user => {
-//     return user.createCart();
-// })
-// .catch(err => {
-//     console.log(err)
-// })
 
 mongoConnect(() => {
     app.listen(3000);
