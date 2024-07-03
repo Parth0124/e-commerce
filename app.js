@@ -32,6 +32,10 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect(() => {
+mongoose.connect("mongodb+srv://abhangparth:ParthECommerce@cluster0.c2oyrqb.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0")
+.then(result => {
   app.listen(3000);
-});
+})
+.catch(error => {
+  console.log(error)
+})
