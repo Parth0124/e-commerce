@@ -1,5 +1,4 @@
 const path = require('path');
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -9,7 +8,7 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
-const MongoDb_URI = 'mongodb+srv://abhangparth:ParthECommerce@cluster0.c2oyrqb.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0'
+const MongoDb_URI = 'mongodb+srv://abhangparth:ParthECommerce@cluster0.c2oyrqb.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0';
 
 const app = express();
 const store = new MongoDBStore({
@@ -54,23 +53,14 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(MongoDb_URI)
-  .then(result => {
-    User.findOne().then(user => {
-      if (!user) {
-        const user = new User({
-          name: 'Parth',
-          email: 'abhangparth@gmail.com',
-          cart: {
-            items: []
-          }
-        });
-        user.save();
-      }
-    });
-    app.listen(3000);
+  .connect(MongoDb_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true, // If you're using mongoose to create indexes
+    useFindAndModify: false // If you're using mongoose's findAndModify method
   })
-  .then(() =>{
+  .then(result => {
+    app.listen(3000);
     console.log("connected to database and server is running fine");
   })
   .catch(err => {
