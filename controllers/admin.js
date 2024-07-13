@@ -1,5 +1,6 @@
+const { ValidationError } = require('sequelize');
 const Product = require('../models/product');
-const { check, body, validationResult } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -17,14 +18,31 @@ exports.postAddProduct = [
     .isLength({ min: 3 })
     .trim()
     .isAlphanumeric(),
-  body('imageUrl', 'Invalid imageUrl.').isURL(),
   body('price', 'Price must be a number.').isFloat(),
-  body('description', 'Description must be alphanumeric.').isAlphanumeric(),
+  body('description', 'Description must be a valid string.').isString(),
   (req, res, next) => {
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    const imageUrl = req.file.path; // Assign the uploaded file path to imageUrl
     const price = req.body.price;
     const description = req.body.description;
+    
+    // Check if imageUrl is not defined (indicating no file was attached)
+    if (!imageUrl) {
+      return res.status(422).render('admin/edit-product', {
+        pageTitle: 'Add Product',
+        path: '/admin/add-product',
+        editing: false,
+        hasError: true,
+        errorMessage: 'Attached file is not an image.',
+        product: {
+          title: title,
+          price: price,
+          description: description,
+        },
+        ValidationErrors: []  // Ensure ValidationErrors is correctly spelled
+      });
+    }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log(errors.array());
@@ -39,7 +57,8 @@ exports.postAddProduct = [
           imageUrl: imageUrl,
           price: price,
           description: description,
-        }
+        },
+        ValidationErrors: []  // Ensure ValidationErrors is correctly spelled
       });
     }
 
@@ -54,10 +73,26 @@ exports.postAddProduct = [
       .save()
       .then(result => {
         console.log('Created Product');
+        // Redirect to a page where you display the newly created product
         res.redirect('/admin/products');
       })
       .catch(err => {
         console.log(err);
+        // Handle error appropriately
+        res.status(500).render('admin/edit-product', {
+          pageTitle: 'Add Product',
+          path: '/admin/add-product',
+          editing: false,
+          hasError: true,
+          errorMessage: 'Database operation failed, please try again.',
+          product: {
+            title: title,
+            imageUrl: imageUrl,
+            price: price,
+            description: description,
+          },
+          ValidationErrors: []
+        });
       });
   }
 ];
@@ -89,7 +124,7 @@ exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
+  const image = req.file;
   const updatedDesc = req.body.description;
 
   Product.findById(prodId)
@@ -97,7 +132,10 @@ exports.postEditProduct = (req, res, next) => {
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
-      product.imageUrl = updatedImageUrl;
+      if(image)
+      {
+        product.imageUrl = image.path;
+      }
       return product.save();
     })
     .then(result => {
@@ -109,8 +147,6 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   Product.find()
-    // .select('title price -_id')
-    // .populate('userId', 'name')
     .then(products => {
       res.render('admin/products', {
         prods: products,

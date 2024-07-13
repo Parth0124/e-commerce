@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
-const flash = require('connect-flash')
+const flash = require('connect-flash');
+const multer = require('multer');
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
@@ -20,6 +21,26 @@ const store = new MongoDBStore({
 });
 const csrfProtection = csrf();
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images'); // Ensure 'images' directory exists
+  },
+  filename: (req, file, cb) => {
+    // Generate a unique filename here
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+    cb(null, true); // Accept file
+  } else {
+    cb(null, false); // Reject file
+  }
+};
+
+
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
@@ -28,6 +49,7 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(multer({storage: fileStorage , fileFilter: fileFilter}).single('image'))
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   session({
