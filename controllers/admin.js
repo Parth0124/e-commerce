@@ -1,36 +1,66 @@
 const Product = require('../models/product');
+const { check, body, validationResult } = require('express-validator');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
     editing: false,
+    hasError: false,
+    errorMessage: null,
   });
 };
 
-exports.postAddProduct = (req, res, next) => {
-  const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
-  const price = req.body.price;
-  const description = req.body.description;
-  const product = new Product({
-    title: title,
-    price: price,
-    description: description,
-    imageUrl: imageUrl,
-    userId: req.user
-  });
-  product
-    .save()
-    .then(result => {
-      // console.log(result);
-      console.log('Created Product');
-      res.redirect('/admin/products');
-    })
-    .catch(err => {
-      console.log(err);
+exports.postAddProduct = [
+  body('title', 'Title must be alphanumeric and at least 3 characters long.')
+    .isString()
+    .isLength({ min: 3 })
+    .trim()
+    .isAlphanumeric(),
+  body('imageUrl', 'Invalid imageUrl.').isURL(),
+  body('price', 'Price must be a number.').isFloat(),
+  body('description', 'Description must be alphanumeric.').isAlphanumeric(),
+  (req, res, next) => {
+    const title = req.body.title;
+    const imageUrl = req.body.imageUrl;
+    const price = req.body.price;
+    const description = req.body.description;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log(errors.array());
+      return res.status(422).render('admin/edit-product', {
+        pageTitle: 'Add Product',
+        path: '/admin/add-product',
+        editing: false,
+        hasError: true,
+        errorMessage: errors.array()[0].msg,
+        product: {
+          title: title,
+          imageUrl: imageUrl,
+          price: price,
+          description: description,
+        }
+      });
+    }
+
+    const product = new Product({
+      title: title,
+      price: price,
+      description: description,
+      imageUrl: imageUrl,
+      userId: req.user
     });
-};
+    product
+      .save()
+      .then(result => {
+        console.log('Created Product');
+        res.redirect('/admin/products');
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+];
 
 exports.getEditProduct = (req, res, next) => {
   const editMode = req.query.edit;
@@ -47,7 +77,9 @@ exports.getEditProduct = (req, res, next) => {
         pageTitle: 'Edit Product',
         path: '/admin/edit-product',
         editing: editMode,
+        hasError: false,
         product: product,
+        errorMessage: null,
       });
     })
     .catch(err => console.log(err));
