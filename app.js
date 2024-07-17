@@ -1,5 +1,4 @@
 const path = require('path');
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -33,13 +32,18 @@ const fileStorage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/jpeg' ||
+    file.mimetype === 'image/avif' ||
+    file.mimetype === 'image/webp'
+  ) {
     cb(null, true); // Accept file
   } else {
     cb(null, false); // Reject file
   }
 };
-
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -49,7 +53,7 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer({storage: fileStorage , fileFilter: fileFilter}).single('image'))
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(
@@ -88,7 +92,11 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(MongoDb_Uri)
+  .connect(MongoDb_Uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false
+  })
   .then(result => {
     app.listen(3000);
   })

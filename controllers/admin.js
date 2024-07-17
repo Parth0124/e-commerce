@@ -14,11 +14,16 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = [
-  body('title', 'Title must be alphanumeric and at least 3 characters long.')
-    .isString()
-    .isLength({ min: 3 })
-    .trim()
-    .isAlphanumeric(),
+  body('title', 'Title must be at least 3 characters long.')
+  .isString()
+  .isLength({ min: 3 })
+  .trim()
+  .custom(value => {
+    if (!/^[a-zA-Z0-9 ]+$/.test(value)) {
+      throw new Error('Title can only contain letters, numbers, and spaces.');
+    }
+    return true;
+  }),
   body('price', 'Price must be a number.').isFloat(),
   body('description', 'Description must be a valid string.').isString(),
   (req, res, next) => {
