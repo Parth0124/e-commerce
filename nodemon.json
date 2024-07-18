@@ -1,0 +1,9 @@
+{
+    "env": 
+    {
+        "MONGO_USER": "abhangparth",
+        "MONGO_PASSWORD": "ParthECommerce",
+        "MONGO_DEFAULT_DATABASE": "shop",
+        "STRIPE_KEY": "sk_test_51Pdo6QIxsA0wTyCImwS2sIgJJBmaIE0jURXjddzu3bN8JfhaKdGz1ZdWTjynffd4PeuPVKCocg0GNBebkl3jMUHM00Hwe8eqsz"
+    }
+}

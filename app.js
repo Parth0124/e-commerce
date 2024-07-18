@@ -1,6 +1,8 @@
 // server.js or app.js
 
 const path = require('path');
+const fs = require('fs');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -9,11 +11,14 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
-const MongoDb_Uri = 'mongodb+srv://abhangparth:ParthECommerce@cluster0.c2oyrqb.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0';
+const MongoDb_Uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.c2oyrqb.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority&appName=Cluster0`;
 
 const app = express();
 const store = new MongoDBStore({
@@ -53,6 +58,11 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
+
+app.use(helmet());
+app.use(compression());
+app.use(morgan('combined', {stream: accessLogStream}))
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // Add this line to parse JSON bodies
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
@@ -100,7 +110,7 @@ mongoose
     useFindAndModify: false
   })
   .then(result => {
-    app.listen(3000);
+    app.listen(process.env.PORT || 3000);
   })
   .catch(err => {
     console.log(err);
