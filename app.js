@@ -110,11 +110,15 @@ mongoose
     useFindAndModify: false
   })
   .then(result => {
-    app.listen(process.env.PORT || 3000);
+    console.log('Connected to MongoDB');
+    app.listen(process.env.PORT || 3000, () => {
+      console.log('Server is running on port', process.env.PORT || 3000);
+    });
   })
   .catch(err => {
-    console.log(err);
+    console.error('Failed to connect to MongoDB', err);
   });
+
 
 
   
