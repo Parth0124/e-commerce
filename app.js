@@ -1,3 +1,5 @@
+// server.js or app.js
+
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -22,10 +24,9 @@ const csrfProtection = csrf();
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images'); // Ensure 'images' directory exists
+    cb(null, 'images');
   },
   filename: (req, file, cb) => {
-    // Generate a unique filename here
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, uniqueSuffix + '-' + file.originalname);
   }
@@ -39,9 +40,9 @@ const fileFilter = (req, file, cb) => {
     file.mimetype === 'image/avif' ||
     file.mimetype === 'image/webp'
   ) {
-    cb(null, true); // Accept file
+    cb(null, true);
   } else {
-    cb(null, false); // Reject file
+    cb(null, false);
   }
 };
 
@@ -53,6 +54,7 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json()); // Add this line to parse JSON bodies
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
@@ -103,3 +105,6 @@ mongoose
   .catch(err => {
     console.log(err);
   });
+
+
+  
