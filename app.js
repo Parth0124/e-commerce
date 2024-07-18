@@ -62,7 +62,7 @@ const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'),
 
 app.use(helmet());
 app.use(compression());
-app.use(morgan('combined', {stream: accessLogStream}))
+app.use(morgan('combined', {stream:accessLogStream}))
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // Add this line to parse JSON bodies
 app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
@@ -107,18 +107,13 @@ mongoose
   .connect(MongoDb_Uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false
   })
   .then(result => {
-    console.log('Connected to MongoDB');
-    app.listen(process.env.PORT || 3000, () => {
-      console.log('Server is running on port', process.env.PORT || 3000);
-    });
+    app.listen(process.env.PORT || 3000);
   })
   .catch(err => {
-    console.error('Failed to connect to MongoDB', err);
+    console.log(err);
   });
-
 
 
   
