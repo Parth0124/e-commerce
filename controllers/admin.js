@@ -78,7 +78,6 @@ exports.postAddProduct = [
     product
       .save()
       .then(result => {
-        console.log('Created Product');
         // Redirect to a page where you display the newly created product
         res.redirect('/admin/products');
       })
